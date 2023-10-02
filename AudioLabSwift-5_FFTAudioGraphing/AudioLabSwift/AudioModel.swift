@@ -8,6 +8,7 @@
 
 import Foundation
 import Accelerate
+import AVFoundation
 
 class AudioModel {
     
@@ -17,6 +18,8 @@ class AudioModel {
     // the user can access these arrays at any time and plot them if they like
     var timeData:[Float]
     var fftData:[Float]
+    //var frequencies:[Float]
+    private var samplingRate:Double
     
     // MARK: Public Methods
     init(buffer_size:Int) {
@@ -24,6 +27,7 @@ class AudioModel {
         // anything not lazily instatntiated should be allocated here
         timeData = Array.init(repeating: 0.0, count: BUFFER_SIZE)
         fftData = Array.init(repeating: 0.0, count: BUFFER_SIZE/2)
+        samplingRate = AVAudioSession.sharedInstance().sampleRate
     }
     
     // public function for starting processing of microphone data
@@ -41,12 +45,59 @@ class AudioModel {
         }
     }
     
+    private func getSamplingRate() -> Double{
+        return self.samplingRate
+    }
+    
+    private func getDataSize() -> Int{
+        return self.timeData.count
+    }
+    
     
     // You must call this when you want the audio to start being handled by our model
     func play(){
         if let manager = self.audioManager{
             manager.play()
         }
+    }
+    
+    func pause(){
+        if let manager = self.audioManager{
+            manager.pause()
+        }
+    }
+    
+    func getTwoLoudestFrequencies()->Array<Double>{
+        //Static constant for sampling rate over buffer size
+        var frequencyOverN = self.getSamplingRate()/Double(self.getDataSize())
+        
+        //Arbitrarily set float values
+        var magnitudeOne:Float = -1000
+        var magnitudeTwo:Float = -1000
+        
+        //Indices for calculating frequencies
+        var indexOne:Int = 0
+        var indexTwo:Int = 0
+        
+        for i in 0...self.fftData.count-1{
+            if self.fftData[i] > magnitudeOne{
+                magnitudeTwo = magnitudeOne
+                indexTwo = indexOne
+                magnitudeOne = self.fftData[i]
+                indexOne = i
+            }else if self.fftData[i] > magnitudeTwo{
+                magnitudeTwo = self.fftData[i]
+                indexTwo = i
+            }
+        }
+        var result:[Double] = []
+        
+        if magnitudeOne + magnitudeTwo > 14{
+            result = [(Double(indexOne) * frequencyOverN),(Double(indexTwo) * frequencyOverN)]
+        }else{
+            result = [0.0,0.0]
+        }
+        return result
     }
     
     

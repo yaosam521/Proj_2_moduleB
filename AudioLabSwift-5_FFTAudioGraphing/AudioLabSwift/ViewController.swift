@@ -57,6 +57,7 @@ class ViewController: UIViewController {
        
     }
     
+    
     // periodically, update the graph with refreshed FFT Data
     func updateGraph(){
         

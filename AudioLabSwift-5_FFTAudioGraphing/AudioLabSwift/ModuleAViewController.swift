@@ -16,12 +16,14 @@ class ModuleAViewController: UIViewController {
     @IBOutlet weak var graphView: UIView!
     
     //Labels to show Frequency
+    //@IBOutlet weak var frequencyOneLabel: UILabel!
+    //@IBOutlet weak var frequencyTwoLabel: UILabel!
+    
     @IBOutlet weak var frequencyOneLabel: UILabel!
     @IBOutlet weak var frequencyTwoLabel: UILabel!
     
-    
     struct AudioConstants{
-        static let AUDIO_BUFFER_SIZE = 1024*4
+        static let AUDIO_BUFFER_SIZE = 16384
     }
     
     //Sets up the Audio Model
@@ -57,9 +59,18 @@ class ModuleAViewController: UIViewController {
 
         audio.play()
         
+        var results:[Double] = []
+        
         // run the loop for updating the graph peridocially
         Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
             self.updateGraph()
+            
+            results = self.audio.getTwoLoudestFrequencies()
+            print(self.audio.getTwoLoudestFrequencies())
+            
+            self.frequencyOneLabel.text = String(format: "%.2f Hz",results[0])
+            self.frequencyTwoLabel.text = String(format:"%.2f Hz", results[1])
+            
         }
     }
     
@@ -81,18 +92,17 @@ class ModuleAViewController: UIViewController {
     }
     
     /**
-        This function is designed to grab the top two frequencies and return them as an array.
+        This function is designed to grab the top two loudest frequencies and return them as an array.
      
      My idea was to have this return the top two frequencies and change the labels 'Frequency 1' and 'Frequency 2' respectively.
      
      return: [NSInteger,NSInteger]
      */
-    func getTopTwoFrequencies(){
-        /*
-         return self.audio.fftData.sort()[:2]
-         */
-    }
     
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        audio.pause()
+    }
     
     /*
     // MARK: - Navigation
