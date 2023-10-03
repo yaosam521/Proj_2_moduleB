@@ -214,7 +214,7 @@ class AudioModel {
     var sineFrequency:Float = 0.0 { // frequency in Hz (changeable by user)
         didSet{
             // if using swift for generating the sine wave: when changed, we need to update our increment
-            //phaseIncrement = Float(2*Double.pi*sineFrequency/audioManager!.samplingRate)
+//            phaseIncrement = Float(2*Double.pi*sineFrequency/audioManager!.samplingRate)
             
             // if using objective c: this changes the frequency in the novocain block
             self.audioManager?.sineFrequency = sineFrequency

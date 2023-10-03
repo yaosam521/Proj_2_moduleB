@@ -47,7 +47,7 @@ class ViewController: UIViewController {
         
         // start up the audio model here, querying microphone
         audio.startMicrophoneProcessing(withFps: 20) // preferred number of FFT calculations per second
-        audio.startProcessingSinewaveForPlayback(withFreq: 800.0) // playing audio with sineWave
+        audio.startProcessingSinewaveForPlayback(withFreq: 15000) // playing audio with sineWave
 
         audio.play()
         
@@ -90,12 +90,16 @@ class ViewController: UIViewController {
     @IBOutlet weak var slider: UISlider!
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var sliderLabel: UILabel!
-    var frequency: Int = 0
+    var frequency: Float = 0
     
-    @IBAction func changeFreq(_ sender: Any) {
-        frequency = Int(slider.value)
-        sliderLabel.text = String(frequency) + "Hz"
+    @IBAction func sineFrequency(_ sender: Any) {
+        // set the volume using the audio model, this controls the output block
+        frequency = Float(slider.value)
+        // let the user know what the volume is!
+        sliderLabel.text = String(format: "Volume: %.1f", slider.value )
+//        sliderLabel.text = String(frequency) + "Hz"
     }
+    
 
     @IBAction func playFreq(_ sender: Any) {
         let audioSession = AVAudioSession.sharedInstance()
@@ -109,4 +113,3 @@ class ViewController: UIViewController {
     
     
 }
-
