@@ -21,10 +21,13 @@ class AudioModel {
 
     //A Variable that has the sampling rate
     private var samplingRate:Double
+
+    
     
     // MARK: Public Methods
     init(buffer_size:Int) {
         BUFFER_SIZE = buffer_size
+        
         // anything not lazily instatntiated should be allocated here
         timeData = Array.init(repeating: 0.0, count: BUFFER_SIZE)
         fftData = Array.init(repeating: 0.0, count: BUFFER_SIZE/2)
@@ -55,9 +58,10 @@ class AudioModel {
     func getTimeData() -> Array<Float>{
         return self.timeData
     }
-    
+
     // You must call this when you want the audio to start being handled by our model
     func play(){
+        
         if let manager = self.audioManager{
             manager.play()
         }
@@ -197,5 +201,32 @@ class AudioModel {
         self.inputBuffer?.addNewFloatData(data, withNumSamples: Int64(numFrames))
     }
     
+    //pause function called when leaving view and button
+    func pause(){
+        if let manager = self.audioManager{
+            manager.pause()
+            
+        }
+    }
     
+   
+    //implemented for audio output as a sine wave //can be user adjusted
+    var sineFrequency:Float = 0.0 { // frequency in Hz (changeable by user)
+        didSet{
+            // if using swift for generating the sine wave: when changed, we need to update our increment
+            //phaseIncrement = Float(2*Double.pi*sineFrequency/audioManager!.samplingRate)
+            
+            // if using objective c: this changes the frequency in the novocain block
+            self.audioManager?.sineFrequency = sineFrequency
+        }
+    }
+        func startProcessingSinewaveForPlayback(withFreq:Float=330.0){
+            sineFrequency = withFreq
+            // Two examples are given that use either objective c or that use swift
+            //   the swift code for loop is slightly slower thatn doing this in c,
+            //   but the implementations are very similar
+            //self.audioManager?.outputBlock = self.handleSpeakerQueryWithSinusoid // swift for loop
+            self.audioManager?.setOutputBlockToPlaySineWave(sineFrequency) // c for loop
+        }
+
 }

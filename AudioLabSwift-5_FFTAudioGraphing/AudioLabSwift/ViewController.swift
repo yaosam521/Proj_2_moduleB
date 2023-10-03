@@ -47,6 +47,7 @@ class ViewController: UIViewController {
         
         // start up the audio model here, querying microphone
         audio.startMicrophoneProcessing(withFps: 20) // preferred number of FFT calculations per second
+        audio.startProcessingSinewaveForPlayback(withFreq: 800.0) // playing audio with sineWave
 
         audio.play()
         
@@ -55,6 +56,15 @@ class ViewController: UIViewController {
             self.updateGraph()
         }
        
+    }
+    
+    //To pause when leaving screen
+    override func viewWillDisappear(_ animated: Bool) {
+        
+        super.viewWillDisappear(animated);
+            audio.pause();
+            
+        //audio.pause();
     }
     
     
