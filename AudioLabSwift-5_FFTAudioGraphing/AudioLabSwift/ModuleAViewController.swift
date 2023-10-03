@@ -23,7 +23,7 @@ class ModuleAViewController: UIViewController {
     @IBOutlet weak var frequencyTwoLabel: UILabel!
     
     struct AudioConstants{
-        static let AUDIO_BUFFER_SIZE = 16384
+        static let AUDIO_BUFFER_SIZE = 32768//16384
     }
     
     //Sets up the Audio Model
@@ -66,11 +66,11 @@ class ModuleAViewController: UIViewController {
             self.updateGraph()
             
             results = self.audio.getTwoLoudestFrequencies()
-            print(self.audio.getTwoLoudestFrequencies())
-            
-            self.frequencyOneLabel.text = String(format: "%.2f Hz",results[0])
-            self.frequencyTwoLabel.text = String(format:"%.2f Hz", results[1])
-            
+            print(results)
+            if !results.contains(0.0) {
+                self.frequencyOneLabel.text = String(format: "%.2f Hz",results[0])
+                self.frequencyTwoLabel.text = String(format:"%.2f Hz", results[1])
+            }
         }
     }
     
@@ -79,12 +79,12 @@ class ModuleAViewController: UIViewController {
         
         if let graph = self.graph{
             graph.updateGraph(
-                data: self.audio.fftData,
+                data: self.audio.getFFTData(),
                 forKey: "fft"
             )
             
             graph.updateGraph(
-                data: self.audio.timeData,
+                data: self.audio.getTimeData(),
                 forKey: "time"
             )
         }
@@ -98,11 +98,6 @@ class ModuleAViewController: UIViewController {
      
      return: [NSInteger,NSInteger]
      */
-    
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        audio.pause()
-    }
     
     /*
     // MARK: - Navigation

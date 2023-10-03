@@ -16,9 +16,10 @@ class AudioModel {
     private var BUFFER_SIZE:Int
     // thse properties are for interfaceing with the API
     // the user can access these arrays at any time and plot them if they like
-    var timeData:[Float]
-    var fftData:[Float]
-    //var frequencies:[Float]
+    private var timeData:[Float]
+    private var fftData:[Float]
+
+    //A Variable that has the sampling rate
     private var samplingRate:Double
     
     // MARK: Public Methods
@@ -27,6 +28,8 @@ class AudioModel {
         // anything not lazily instatntiated should be allocated here
         timeData = Array.init(repeating: 0.0, count: BUFFER_SIZE)
         fftData = Array.init(repeating: 0.0, count: BUFFER_SIZE/2)
+        
+        //Immediately store the sampling rate, as it is a constant
         samplingRate = AVAudioSession.sharedInstance().sampleRate
     }
     
@@ -45,14 +48,13 @@ class AudioModel {
         }
     }
     
-    private func getSamplingRate() -> Double{
-        return self.samplingRate
+    func getFFTData() -> Array<Float>{
+        return self.fftData
     }
     
-    private func getDataSize() -> Int{
-        return self.timeData.count
+    func getTimeData() -> Array<Float>{
+        return self.timeData
     }
-    
     
     // You must call this when you want the audio to start being handled by our model
     func play(){
@@ -61,42 +63,79 @@ class AudioModel {
         }
     }
     
-    func pause(){
-        if let manager = self.audioManager{
-            manager.pause()
-        }
-    }
-    
+    /**
+     Function that calculates the two loudest frequencies from the microphone.
+     
+     How it works:
+     For loop reads through every magnitude in the FFT Data
+     It selects the loudest magnitude, saving the location within the array to calculate the frequency.
+     The second loudest magnitude is saved if and only if the iteration is plus or minus 17 from the first magnitude.
+     
+     17 was calculated from the sampleRate/N equation, as each iteration in the fft array is roughly an increase in 3 Hz. Therefore 17 * 3 = 51
+     
+     If the combined magnitudes is no louder than 50 db (an arbitrary value), the return array will be set to 0.0
+     Otherwise, it returns an array of two elements, both of them frequencies in Hertz.
+     */
     func getTwoLoudestFrequencies()->Array<Double>{
         //Static constant for sampling rate over buffer size
-        var frequencyOverN = self.getSamplingRate()/Double(self.getDataSize())
+        let samplingOverN = self.samplingRate/Double(self.getDataSize())
         
         //Arbitrarily set float values
         var magnitudeOne:Float = -1000
         var magnitudeTwo:Float = -1000
         
-        //Indices for calculating frequencies
+        //Frequencies initially set to arbitrary values
+        var frequencyOne:Double = -1000
+        var frequencyTwo:Double = -10000
+        
+        //Indices for calculating frequencies. Set to zero initially
         var indexOne:Int = 0
         var indexTwo:Int = 0
         
+        /**
+         Loop that calculates the two largest frequencies.
+         
+         Two frequencies, chilling in an FFT Graph, 50 Hz Apart
+         */
         for i in 0...self.fftData.count-1{
             if self.fftData[i] > magnitudeOne{
-                magnitudeTwo = magnitudeOne
-                indexTwo = indexOne
+                
+                //Update if and only if 'i' is 17 indices away from indexOne
+                if (i > indexOne + 17 || i < indexOne - 17){
+                    magnitudeTwo = magnitudeOne
+                    indexTwo = indexOne
+                }
+                
+                //Update indexOne
                 magnitudeOne = self.fftData[i]
                 indexOne = i
-            }else if self.fftData[i] > magnitudeTwo{
+                
+            //Set magnitude of second loudest tone
+            }else if self.fftData[i] > magnitudeTwo && (i > indexOne + 17 || i < indexOne - 17){
                 magnitudeTwo = self.fftData[i]
                 indexTwo = i
             }
         }
+        
+        //Print statement used for debugging
+        print(indexOne)
+        print(indexTwo)
+        
+        //Calculates the first and second frequencies
+        frequencyOne = Double(indexOne) * samplingOverN
+        frequencyTwo = Double(indexTwo) * samplingOverN
+        
+        //Return array
         var result:[Double] = []
         
-        if magnitudeOne + magnitudeTwo > 14{
-            result = [(Double(indexOne) * frequencyOverN),(Double(indexTwo) * frequencyOverN)]
+        //If magnitudes are louder than 50 decibels, populate array with frequencies
+        //Otherwise, leave them blank
+        if magnitudeOne + magnitudeTwo > 50{
+            result = [frequencyOne, frequencyTwo]
         }else{
             result = [0.0,0.0]
         }
+        
         return result
     }
     
@@ -120,8 +159,15 @@ class AudioModel {
     
     //==========================================
     // MARK: Private Methods
-    // NONE for this model
     
+    /**
+     Private Helper Function that returns size of microphone array.
+     Purpose is to make calculation code look less messy
+     */
+    private func getDataSize() -> Int{
+        return self.timeData.count
+    }
+   
     //==========================================
     // MARK: Model Callback Methods
     private func runEveryInterval(){

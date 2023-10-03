@@ -63,12 +63,12 @@ class ViewController: UIViewController {
         
         if let graph = self.graph{
             graph.updateGraph(
-                data: self.audio.fftData,
+                data: self.audio.getFFTData(),
                 forKey: "fft"
             )
             
             graph.updateGraph(
-                data: self.audio.timeData,
+                data: self.audio.getTimeData(),
                 forKey: "time"
             )
         }
