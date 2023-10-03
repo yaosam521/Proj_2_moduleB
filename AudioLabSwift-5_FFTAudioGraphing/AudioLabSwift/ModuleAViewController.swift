@@ -23,7 +23,7 @@ class ModuleAViewController: UIViewController {
     @IBOutlet weak var frequencyTwoLabel: UILabel!
     
     struct AudioConstants{
-        static let AUDIO_BUFFER_SIZE = 32768//16384
+        static let AUDIO_BUFFER_SIZE = 16384
     }
     
     //Sets up the Audio Model
