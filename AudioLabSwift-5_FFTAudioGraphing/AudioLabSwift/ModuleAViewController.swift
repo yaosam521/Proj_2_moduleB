@@ -74,6 +74,15 @@ class ModuleAViewController: UIViewController {
         }
     }
     
+    //To pause when leaving screen
+    override func viewWillDisappear(_ animated: Bool) {
+        
+        super.viewWillDisappear(animated);
+            audio.pause();
+            
+        //audio.pause();
+    }
+    
     // periodically, update the graph with refreshed FFT Data
     func updateGraph(){
         

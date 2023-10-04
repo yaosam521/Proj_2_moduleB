@@ -51,10 +51,12 @@ class AudioModel {
         }
     }
     
+    //Getter method for the fft Data Array
     func getFFTData() -> Array<Float>{
         return self.fftData
     }
     
+    //Getter method for the time data Array
     func getTimeData() -> Array<Float>{
         return self.timeData
     }

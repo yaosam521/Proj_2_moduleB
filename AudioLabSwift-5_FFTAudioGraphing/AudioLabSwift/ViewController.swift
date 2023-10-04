@@ -28,6 +28,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("View Loaded!")
         
         if let graph = self.graph{
             graph.setBackgroundColor(r: 0, g: 0, b: 0, a: 1)
@@ -85,31 +86,12 @@ class ViewController: UIViewController {
         
     }
     
+    @IBOutlet weak var frequencyLabel: UILabel!
     
     // Plays a settable via a slider inaudible tone to the speakers (15-20kHz)
-    @IBOutlet weak var slider: UISlider!
-    @IBOutlet weak var playButton: UIButton!
-    @IBOutlet weak var sliderLabel: UILabel!
-    var frequency: Float = 0
-    
-    @IBAction func sineFrequency(_ sender: Any) {
-        // set the volume using the audio model, this controls the output block
-        frequency = Float(slider.value)
-        // let the user know what the volume is!
-        sliderLabel.text = String(format: "Volume: %.1f", slider.value )
-//        sliderLabel.text = String(frequency) + "Hz"
+    @IBAction func changeFrequency(_ sender: UISlider) {
+        self.audio.sineFrequency = sender.value
+        frequencyLabel.text = "Frequency: \(sender.value) Hz"
     }
-    
-
-    @IBAction func playFreq(_ sender: Any) {
-        let audioSession = AVAudioSession.sharedInstance()
-        let sampleRate = audioSession.sampleRate
-        let FPS = sampleRate / Double(frequency)
-        
-        audio.startMicrophoneProcessing(withFps: FPS)
-        audio.play()
-        self.updateGraph()
-    }
-    
     
 }
