@@ -13,7 +13,9 @@ import AVFoundation
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var decibelLabel: UILabel!
     @IBOutlet weak var userView: UIView!
+    @IBOutlet weak var gestureLabel: UILabel!
     
     struct AudioConstants{
         static let AUDIO_BUFFER_SIZE = 1024*4
@@ -55,6 +57,9 @@ class ViewController: UIViewController {
         // run the loop for updating the graph peridocially
         Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
             self.updateGraph()
+            self.decibelLabel.text = "Decibels: \(self.audio.getLoudestMagnitude()) dB"
+            //TODO - Change this
+            self.gestureLabel.text = "Bruh"
         }
        
     }

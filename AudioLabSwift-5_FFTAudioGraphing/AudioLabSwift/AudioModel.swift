@@ -145,6 +145,10 @@ class AudioModel {
         return result
     }
     
+    func getLoudestMagnitude() -> Float{
+        return self.fftData.max()!
+    }
+    
     
     //==========================================
     // MARK: Private Properties
